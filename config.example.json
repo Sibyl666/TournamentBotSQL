@@ -1,0 +1,9 @@
+{
+  "command_prefix" : ",",
+  "cogs_dir" : "cogs",
+  "bot_token" : "token",
+
+  "database_file" : "yankee.db",
+
+  "website" :  "http://localhost"
+}
