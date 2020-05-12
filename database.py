@@ -96,7 +96,7 @@ class Database:
                 if i < where.__len__():
                     wstring += " AND "
                 i += 1
-            self.cursor.execute(f'SELECT COUNT(*) as a FROM {table} WHERE {wstring}', args)
+            self.cursor.execute(f'SELECT COUNT(*) FROM {table} WHERE {wstring}', args)
         return self.cursor.fetchone()[0]
 
     def fetchone(self):
