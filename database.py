@@ -84,3 +84,6 @@ class Database:
 
     def fetchone(self):
         return self.cursor.fetchone()
+
+    def fetchall(self):
+        return self.cursor.fetchall()
