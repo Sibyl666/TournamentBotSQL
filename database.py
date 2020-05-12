@@ -82,6 +82,23 @@ class Database:
             self.cursor.execute(f'DELETE FROM {table} WHERE {wstring}', args)
             self.conn.commit()
 
+    def count(self, table, **where):
+
+        if where.__len__() == 0:
+            self.cursor.execute(f'SELECT COUNT(*) FROM {table}')
+        else:
+            i = 1
+            wstring = ""
+            args = []
+            for key, value in where.items():
+                wstring += key + " = ?"
+                args.append(value)
+                if i < where.__len__():
+                    wstring += " AND "
+                i += 1
+            self.cursor.execute(f'SELECT COUNT(*) as a FROM {table} WHERE {wstring}', args)
+        return self.cursor.fetchone()[0]
+
     def fetchone(self):
         return self.cursor.fetchone()
 
