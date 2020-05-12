@@ -51,6 +51,15 @@ class Registrations(commands.Cog):
             return
         await ctx.send("Kaydınızı tamamlamak için lütfen DM'nize gelen linke tıklayın.")
 
+    @commands.command(name='leave')
+    async def exit_tourney(self, ctx):
+        db = Database()
+        db.select(table="users", discord_id=ctx.author.id)
+        if db.fetchone():
+            db.delete(table="users", discord_id=ctx.author.id)
+            await ctx.send("Turnuvadan başarıyla çıkış yaptınız.")
+        else:
+            await ctx.send("Turnuvada kayıtlı değilsiniz.")
 
 def setup(bot):
     bot.add_cog(Registrations(bot))
