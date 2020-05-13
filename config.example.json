@@ -1,9 +1,14 @@
 {
-  "command_prefix" : ",",
-  "cogs_dir" : "cogs",
-  "bot_token" : "token",
+  "command_prefix": ",",
+  "cogs_dir": "cogs",
+  "bot_token": "",
 
-  "database_file" : "yankee.db",
+  "database_file": "yankee.db",
 
-  "website" :  "http://localhost"
+  "website": "http://localhost",
+  "accent_color": [
+    117,
+    29,
+    160
+  ]
 }

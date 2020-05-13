@@ -41,6 +41,11 @@ class Database:
 
         self.close()
 
+    @staticmethod
+    def get_config():
+        with open('config.json') as config_file:
+            return json.load(config_file)
+
     def insert(self, table, *values):
 
         pragma = self.cursor.execute(f'PRAGMA table_info({table})').fetchall()

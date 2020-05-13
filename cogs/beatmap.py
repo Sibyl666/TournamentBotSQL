@@ -114,7 +114,7 @@ class Mappool(commands.Cog):
                 desc_text += "{}-{}-{}-{}-{}-{}".format(val[2], val[3], val[4], val[5], val[6], val[7])
                 desc_text += "\n\n"
 
-            color = discord.Color.from_rgb(40, 60, 90)
+            color = discord.Color.from_rgb(*Database.get_config()["accent_color"])
             embed = discord.Embed(description=desc_text, color=color)
             embed.set_author(name="Stage List")
             await ctx.send(embed=embed)
@@ -221,7 +221,7 @@ class Mappool(commands.Cog):
                           ezpp_od(ezpp_map), ezpp_hp(ezpp_map))
 
             embed = discord.Embed(title=title_text, description=desc_text,
-                                  color=discord.Color.from_rgb(60,60,60), url=bmap_url)
+                                  color=discord.Color.from_rgb(*Database.get_config()["accent_color"]), url=bmap_url)
             embed.set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/520370557531979786/693448457154723881/botavatar.png")
             embed.set_author(name=author_name)
