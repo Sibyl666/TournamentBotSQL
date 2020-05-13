@@ -37,6 +37,33 @@ class Mappool(commands.Cog):
 
         return bmap_dict, ezpp_map
 
+    @staticmethod
+    async def show_single_mod_pool(ctx, bmaps, which_pool, mod):
+
+        color = discord.Color.from_rgb(*Database.get_config()["accent_color"])
+        desc_text = ""
+        for bmap in bmaps:
+            bpm = float(bmap[12])
+            length = int(bmap[13])
+            star_rating = round(float(bmap[11]), 2)
+
+            bmap_url = "https://osu.ppy.sh/b/{0}".format(bmap[0])
+            bmap_name = f"{bmap[3]} - {bmap[2]} [{bmap[5]}]"
+            desc_text += f"[{bmap_name}]({bmap_url})\n" \
+                f"▸**Length:** {length // 60}:{length % 60:02d} ▸**BPM:** {bpm:.1f} ▸**SR:** {star_rating}* "
+            if bmap[8] != "":
+                desc_text += f"▸**C:** `{bmap[8]}`"
+            desc_text += f"\n ▸**AR:** {round(float(bmap[15]), 2)} ▸**CS:** {round(float(bmap[16]), 2)} ▸**OD:** {round(float(bmap[17]), 2)}" \
+                f"▸**HP:** {round(float(bmap[18]), 2)} \n" \
+                f"▸**Mapper:** {bmap[4]} ▸**Status:** {bmap[6]} ▸**Max Combo:** x{bmap[14]}\n"
+
+        author_name = f"Beatmaps in {which_pool} - {mod}"
+        embed = discord.Embed(description=desc_text, color=color)
+        embed.set_author(name=author_name)
+        await ctx.send(embed=embed)
+
+        return
+
     @commands.command(name='stage')
     @commands.has_permissions(administrator=True)
     async def stages(self, ctx, action, stage=None, max_nm=None, max_hd=None, max_hr=None, max_dt=None,
@@ -61,6 +88,8 @@ class Mappool(commands.Cog):
             if not max_nm.isnumeric() or not max_hd.isnumeric() or not max_hr.isnumeric() or not max_dt.isnumeric() or not max_fm.isnumeric() or not max_tb.isnumeric():
                 await ctx.send('Please specify maximum values numerical.')
                 return
+
+            stage = stage.upper()
 
             db = Database()
             db.select(table="stages", stage=stage)
@@ -167,12 +196,13 @@ class Mappool(commands.Cog):
                 return
 
             mods = ["NM", "HD", "HR", "DT", "FM", "TB"]
-            mod_index = mods.index(mod)
 
             if mod not in mods:
                 await ctx.send(f"Mods can only be one of from {mods}.\n"
                                f"You wanted to select {mod} mod pool, but it does not exist.")
                 return
+
+            mod_index = mods.index(mod)
 
             if db.count("beatmaps", map_id=map_id) != 0:
                 await ctx.send(f"The map you linked has been used in the previous iterations of this tournament.\n"
@@ -196,11 +226,14 @@ class Mappool(commands.Cog):
             stars = ezpp_stars(ezpp_map)
 
             bmapset_id = map_info["id"]
+            bmapset_creator = map_info["creator"]
             bmap_artist = map_info["artist"]
             bmap_title = map_info["title"]
             bmap_cover = map_info["covers"]["cover"]
             bmap_url = selected_bmap["url"]
+            bmap_approved = selected_bmap["status"].capitalize()
             bmap_version = selected_bmap["version"]
+            bmap_maxcombo = selected_bmap["max_combo"]
 
             map_name = f"{bmap_artist} - {bmap_title} [{bmap_version}]"
 
@@ -216,8 +249,9 @@ class Mappool(commands.Cog):
                 author_name = f"Successfully added map to {pool} Pool - {mod}"
                 desc_text = ""
                 footer_text = f"{db.count('beatmaps', modpool=mod, mappool=pool) + 1} out of {max_map_in_pool} maps in {pool} {mod} pool"
-                db.insert("beatmaps", map_id, bmapset_id, bmap_title, bmap_artist, ctx.author.name, comment, pool, mod, stars,
-                          selected_bmap["bpm"], selected_bmap["hit_length"], ezpp_ar(ezpp_map), ezpp_cs(ezpp_map),
+                db.insert("beatmaps", map_id, bmapset_id, bmap_title, bmap_artist, bmapset_creator, bmap_version,
+                          bmap_approved, ctx.author.name, comment, pool, mod, stars, selected_bmap["bpm"],
+                          selected_bmap["hit_length"], bmap_maxcombo, ezpp_ar(ezpp_map), ezpp_cs(ezpp_map),
                           ezpp_od(ezpp_map), ezpp_hp(ezpp_map))
 
             embed = discord.Embed(title=title_text, description=desc_text,
@@ -262,6 +296,53 @@ class Mappool(commands.Cog):
             return
         else:
             await ctx.send('Please specify your action! (add,remove)')
+
+    @commands.command(name='poolshow')
+    @commands.has_role("Mappool")
+    async def mappool_show(self, ctx, which_pool, mod=None):
+        """
+        Shows the selected pool
+        which_pool: Pool that will be shown
+        mod: (Optional) Can be one of [NM, HD, HR, DT, FM, TB], if not given, bot will display all the maps in the pool
+        """
+        db = Database()
+
+        which_pool = which_pool.upper()
+        db.select("stages", mappool=which_pool)
+        stage = db.fetchone()
+
+        if not stage:
+            await ctx.send("Specified mappool is not found.")
+            return
+
+        mods = ["NM", "HD", "HR", "DT", "FM", "TB"]
+
+        for i in range(2, 8):
+            if stage[i] == 0:
+                del mods[i-2]
+
+        show_all = False
+        if mod is None:
+            show_all = True
+        else:
+            mod = mod.upper()
+            if mod not in mods:
+                await ctx.send(f"Mods can only be one of from {mods}.\n"
+                               f"You wanted to select {mod} mod pool, but it does not exist.")
+                return
+
+        if show_all:
+            for mod in mods:
+                db.select("beatmaps", mappool=which_pool, modpool=mod)
+                bmaps = db.fetchall()
+
+                await self.show_single_mod_pool(ctx, bmaps, which_pool, mod)
+        else:
+            db.select("beatmaps", mappool=which_pool, modpool=mod)
+            bmaps = db.fetchall()
+            await self.show_single_mod_pool(ctx, bmaps, which_pool, mod)
+
+        return
 
 
 def setup(bot):
