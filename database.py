@@ -13,9 +13,7 @@ class Database:
         if name:
             self.open(name)
         else:
-            with open('config.json') as config_file:
-                data = json.load(config_file)
-            self.open(data["database_file"])
+            self.open(self.get_config()["database_file"])
 
     def open(self, name):
 

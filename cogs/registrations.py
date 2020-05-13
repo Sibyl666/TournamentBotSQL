@@ -5,8 +5,6 @@ import uuid
 
 from datetime import datetime, timedelta
 
-import json
-
 
 class Registrations(commands.Cog):
 
@@ -38,8 +36,7 @@ class Registrations(commands.Cog):
         key = uuid.uuid4().hex[:32]
         db.insert("register_requests", ctx.author.id, key, datetime.now())
 
-        with open('config.json') as config_file:
-            cfg = json.load(config_file)
+        cfg = Database.get_config()
 
         try:
             await ctx.author.send(
@@ -60,6 +57,7 @@ class Registrations(commands.Cog):
             await ctx.send("Turnuvadan başarıyla çıkış yaptınız.")
         else:
             await ctx.send("Turnuvada kayıtlı değilsiniz.")
+
 
 def setup(bot):
     bot.add_cog(Registrations(bot))
