@@ -146,11 +146,12 @@ class Mappool(commands.Cog):
             db = Database()
             db.select("stages", mappool=pool)
             data = db.fetchone()
-            max_maps = [data[2], data[3], data[4], data[5], data[6], data[7]]
 
             if not data:
                 await ctx.send("This mappool is not found.")
                 return
+
+            max_maps = [data[2], data[3], data[4], data[5], data[6], data[7]]
 
             if not (map_link.startswith("http://") or map_link.startswith("https://")):
                 await ctx.send(f"Map link should start with http:// or https://.\n"
