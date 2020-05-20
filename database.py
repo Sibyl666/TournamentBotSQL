@@ -85,6 +85,33 @@ class Database:
             self.cursor.execute(f'DELETE FROM {table} WHERE {wstring}', args)
             self.conn.commit()
 
+    def update(self, table, **argv):
+
+        if argv.__len__() == 0:
+            self.cursor.execute(f'UPDATE {table} SET  ')
+            self.conn.commit()
+        else:
+            i = 1
+            wstring = ""
+            ustring = ""
+            wargv = ""
+            args = []
+            for key, value in argv.items():
+                if key == "where":
+                    wvalues = value.split("=")
+                    wstring += wvalues[0] + " = ?"
+                    wargv = wvalues[1]
+                    i += 1
+                else:
+                    ustring += key + " = ?"
+                    args.append(value)
+                    if i < argv.__len__():
+                        ustring += " AND "
+                    i += 1
+            args.append(wargv)
+            self.cursor.execute(f'UPDATE {table} SET {ustring} WHERE {wstring}', args)
+            self.conn.commit()
+
     def count(self, table, **where):
 
         if where.__len__() == 0:
@@ -95,6 +122,23 @@ class Database:
             args = []
             for key, value in where.items():
                 wstring += key + " = ?"
+                args.append(value)
+                if i < where.__len__():
+                    wstring += " AND "
+                i += 1
+            self.cursor.execute(f'SELECT COUNT(*) FROM {table} WHERE {wstring}', args)
+        return self.cursor.fetchone()[0]
+
+    def likecount(self, table, **where):
+
+        if where.__len__() == 0:
+            return self.count(table, **where)
+        else:
+            i = 1
+            wstring = ""
+            args = []
+            for key, value in where.items():
+                wstring += key + " LIKE ?"
                 args.append(value)
                 if i < where.__len__():
                     wstring += " AND "
