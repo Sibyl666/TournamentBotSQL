@@ -12,7 +12,18 @@ class Matches(commands.Cog):
         self.bot = bot
 
     @commands.command(name='lobby')
+    @commands.has_permissions(administrator=True)
     async def manage_lobby(self, ctx, action="", argv1=None, argv2=None, argv3=None, *date):
+        """
+        Add, remove, update or list lobbies.
+        action: "add", "remove", "update" or "list"
+        date: dd/mm HH:MM
+
+        lobby add player1 player2 stage date
+        lobby remove lobby_name
+        lobby update lobby_name date
+        lobby list
+        """
         if action == "add":
             date = " ".join(date)
             player1 = argv1
@@ -121,7 +132,7 @@ class Matches(commands.Cog):
                 db.select("users", osu_id=val[2])
                 player2 = db.fetchone()
 
-                ref = "None" if val[3] is None else val[3]
+                ref = "None" if val[3] is None else discord.Client.get_user(self.bot, int(val[3])).name
 
                 desc_text += "**" + val[0] + "** (" + val[6] + ") "
                 desc_text += "{} vs {}".format(player1[5], player2[5])
@@ -136,6 +147,55 @@ class Matches(commands.Cog):
             return
         else:
             await ctx.send('Please specify an action!')
+
+    @commands.command("refmatch")
+    @commands.has_role("Hakem")
+    async def manage_ref_match(self, ctx, action, lobby_name):
+        """
+        Manage referees for match.
+        action: "join", "leave"
+        lobby_name: Matchs lobby name.
+        """
+        if action == "join":
+            db = Database()
+            lobby_name = lobby_name.upper()
+            db.select("lobbies", id=lobby_name)
+            lobby_data = db.fetchone()
+            if not lobby_data:
+                await ctx.send('Please specify lobby name correctly.')
+                return
+
+            if lobby_data[3] is not None:
+                if lobby_data[3] == ctx.message.author.id:
+                    await ctx.send("You have already joined this lobby.")
+                    return
+                else:
+                    await ctx.send("Already {} joined this lobby.".format(discord.Client.get_user(
+                        self.bot, int(lobby_data[3])).name))
+                    return
+            else:
+                db.update("lobbies", where="id="+lobby_name, referee=ctx.message.author.id)
+                await ctx.send("{} successfully joined the lobby {}.".format(ctx.message.author.name, lobby_name))
+                return
+        elif action == "leave":
+            db = Database()
+            lobby_name = lobby_name.upper()
+            db.select("lobbies", id=lobby_name)
+            lobby_data = db.fetchone()
+            if not lobby_data:
+                await ctx.send('Please specify lobby name correctly.')
+                return
+
+            if lobby_data[3] != str(ctx.message.author.id):
+                await ctx.send('You have not joined this lobby.')
+                return
+            else:
+                db.update("lobbies", where="id="+lobby_name, referee=None)
+                await ctx.send('You have successfully left the lobby {}.'.format(lobby_name))
+                return
+        else:
+            await ctx.send('Please specify an action!')
+            return
 
 
 def setup(bot):
