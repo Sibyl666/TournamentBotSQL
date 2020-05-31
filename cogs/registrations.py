@@ -50,6 +50,9 @@ class Registrations(commands.Cog):
 
     @commands.command(name='leave')
     async def exit_tourney(self, ctx):
+        """
+        Turnuvadan ayrıl.
+        """
         db = Database()
         db.select(table="users", discord_id=ctx.author.id)
         if db.fetchone():

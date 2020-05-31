@@ -142,7 +142,7 @@ class Matches(commands.Cog):
 
             color = discord.Color.from_rgb(*Database.get_config()["accent_color"])
             embed = discord.Embed(description=desc_text, color=color)
-            embed.set_author(name="Stage List")
+            embed.set_author(name="Lobby List")
             await ctx.send(embed=embed)
             return
         else:

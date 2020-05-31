@@ -69,7 +69,7 @@ class Mappool(commands.Cog):
     async def stages(self, ctx, action, stage=None, max_nm=None, max_hd=None, max_hr=None, max_dt=None,
                      max_fm=None, max_tb=None, pool_override=None):
         """
-        Add or remove a stage
+        Add or remove a stage, or show stages.
 
         action: (add, remove, list)
         stage: Name of the stage
@@ -157,7 +157,7 @@ class Mappool(commands.Cog):
     @commands.has_role("Mappool")
     async def mappool(self, ctx, action, map_link=None, pool=None, mod=None, comment=""):
         """
-        Add, remove or show maps from the mappools
+        Add or remove maps from the mappools.
         action: "add", "remove"
         map_link: (Optional) Link of the map you want to add or remove
         pool: (Optional) Which week's pool do you want to add this map? (qf, w1, w2)
@@ -301,7 +301,7 @@ class Mappool(commands.Cog):
     @commands.has_role("Mappool")
     async def mappool_show(self, ctx, which_pool, mod=None):
         """
-        Shows the selected pool
+        Shows the selected pool.
         which_pool: Pool that will be shown
         mod: (Optional) Can be one of [NM, HD, HR, DT, FM, TB], if not given, bot will display all the maps in the pool
         """
