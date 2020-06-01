@@ -98,6 +98,7 @@ class Mappool(commands.Cog):
                 return
 
             if pool_override is not None:
+                pool_override = pool_override.upper()
                 db.select(table="stages", mappool=pool_override)
                 data = db.fetchone()
                 if not data:
@@ -120,6 +121,7 @@ class Mappool(commands.Cog):
             if stage is None:
                 await ctx.send('Please specify the stage.')
                 return
+            stage = stage.upper()
             db = Database()
             db.select("stages", stage=stage)
             if db.fetchone():
@@ -171,6 +173,7 @@ class Mappool(commands.Cog):
                 return
 
             mod = mod.upper()
+            pool = pool.upper()
 
             db = Database()
             db.select("stages", mappool=pool)
