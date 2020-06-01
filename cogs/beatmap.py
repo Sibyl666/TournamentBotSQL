@@ -141,8 +141,9 @@ class Mappool(commands.Cog):
 
             for val in data:
                 desc_text += "**" + val[0] + "** (" + val[1] + ")"
-                desc_text += " ----------- "
-                desc_text += "{}-{}-{}-{}-{}-{}".format(val[2], val[3], val[4], val[5], val[6], val[7])
+                desc_text += " → "
+                desc_text += "NM: `{}`  HD: `{}` - HR: `{}` - DT: `{}` - FM: `{}` - TB: `{}`"\
+                    .format(val[2], val[3], val[4], val[5], val[6], val[7])
                 desc_text += "\n\n"
 
             color = discord.Color.from_rgb(*Database.get_config()["accent_color"])

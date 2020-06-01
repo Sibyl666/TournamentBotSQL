@@ -146,6 +146,10 @@ class Database:
             self.cursor.execute(f'SELECT COUNT(*) FROM {table} WHERE {wstring}', args)
         return self.cursor.fetchone()[0]
 
+    def get_next_id(self, table, group):
+        self.cursor.execute(f'SELECT id FROM {table} WHERE id LIKE ? ORDER BY id DESC', (group+"_%",))
+        return int(self.fetchone()[0].split("_")[1]) + 1
+
     def fetchone(self):
         return self.cursor.fetchone()
 
