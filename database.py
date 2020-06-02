@@ -148,7 +148,11 @@ class Database:
 
     def get_next_id(self, table, group):
         self.cursor.execute(f'SELECT id FROM {table} WHERE id LIKE ? ORDER BY id DESC', (group+"_%",))
-        return int(self.fetchone()[0].split("_")[1]) + 1 if self.fetchone() else 1
+        data = self.fetchone()
+        if data:
+            return int(data[0].split("_")[1]) + 1
+        else:
+            return 1
 
     def fetchone(self):
         return self.cursor.fetchone()
