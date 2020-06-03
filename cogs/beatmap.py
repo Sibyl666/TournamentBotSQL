@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from database import Database
 
+import cloudscraper
 import json
 import requests
 from bs4 import BeautifulSoup
@@ -16,7 +17,8 @@ class Mappool(commands.Cog):
 
     @staticmethod
     def get_map_info(map_id):
-        r = requests.get(f"https://osu.ppy.sh/b/{map_id}")
+        scraper = cloudscraper.create_scraper()
+        r = scraper.get(f"https://osu.ppy.sh/b/{map_id}")
         soup = BeautifulSoup(r.text, 'html.parser')
         try:
             json_bmap = soup.find(id="json-beatmapset").string
