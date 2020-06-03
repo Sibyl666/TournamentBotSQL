@@ -182,13 +182,15 @@ class Matches(commands.Cog):
             for val in data:
 
                 players_json = json.loads(val[1])
-                seperator = " vs "
-                if val[7] == 0:
-                    seperator = ","
+                separator = " vs "
+                db.select("stages", stage=val[5])
+                stagedata = db.fetchone()
+                if stagedata[7] == 0:
+                    separator = ","
 
                 player_string = "No players"
                 if len(players_json) > 0:
-                    player_string = seperator.join([v["osu_username"] for v in players_json])
+                    player_string = separator.join([v["osu_username"] for v in players_json])
 
                 ref = "None" if val[2] is None else discord.Client.get_user(self.bot, int(val[2])).name
 
