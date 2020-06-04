@@ -115,7 +115,7 @@ class Mappool(commands.Cog):
             else:
                 pool_override = stage
 
-            db.insert("stages", stage, pool_override, max_nm, max_hd, max_hr, max_dt, max_fm, max_tb)
+            db.insert("stages", stage, pool_override, max_nm, max_hd, max_hr, max_dt, max_fm, max_tb, False)
             await ctx.send('Successfully added the stage {}.'.format(stage))
             return
 
@@ -349,6 +349,33 @@ class Mappool(commands.Cog):
             await self.show_single_mod_pool(ctx, bmaps, which_pool, mod)
 
         return
+
+    @commands.command(name='announcepool')
+    @commands.has_permissions(administrator=True)
+    async def announce_pool(self, ctx, mappool):
+        """
+        Announce or hide mappools.
+
+        mappool: Mappool's id.
+        """
+        mappool = mappool.upper()
+
+        db = Database()
+        db.select("stages", mappool=mappool)
+        stage = db.fetchone()
+
+        if not stage:
+            await ctx.send("Specified mappool is not found.")
+            return
+
+        if stage[8] == 1:
+            db.update("stages", where="mappool="+mappool, showmappool=False)
+            await ctx.send("Successfully hid the pool {}.".format(mappool))
+            return
+        else:
+            db.update("stages", where="mappool="+mappool, showmappool=True)
+            await ctx.send("Successfully announced the pool {}.".format(mappool))
+            return
 
 
 def setup(bot):
