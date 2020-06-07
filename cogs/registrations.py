@@ -2,6 +2,7 @@ from discord.ext import commands
 from database import Database
 
 import uuid
+import json
 
 from datetime import datetime, timedelta
 
@@ -10,6 +11,24 @@ class Registrations(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+
+    @staticmethod
+    def leave_from_all_lobbies(userid):
+        db = Database()
+        cursor = db.get_cursor()
+        cursor.execute(
+            "select lobbies.* from lobbies LEFT OUTER JOIN stages ON lobbies.stage = stages.stage WHERE stages.max_tb = 0")
+        lobbies = cursor.fetchall()
+        for lobby in lobbies:
+            user_list = json.loads(lobby[1])
+            if any(x['osu_id'] == userid for x in user_list):
+                for x in range(len(user_list)):
+                    if user_list[x - 1]['osu_id'] == userid:
+                        del user_list[x - 1]
+                cursor.execute("UPDATE lobbies SET players = ? WHERE id = ?",
+                               (json.dumps(user_list), lobby[0],))
+                db.commit()
+                return True
 
     @commands.command(name='register')
     async def register_tourney(self, ctx):
@@ -55,7 +74,9 @@ class Registrations(commands.Cog):
         """
         db = Database()
         db.select(table="users", discord_id=ctx.author.id)
-        if db.fetchone():
+        user = db.fetchone()
+        if user:
+            self.leave_from_all_lobbies(user[6])
             db.delete(table="users", discord_id=ctx.author.id)
             await ctx.send("Turnuvadan başarıyla çıkış yaptınız.")
         else:

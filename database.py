@@ -154,6 +154,12 @@ class Database:
         else:
             return 1
 
+    def commit(self):
+        return self.conn.commit()
+
+    def get_cursor(self):
+        return self.cursor
+
     def fetchone(self):
         return self.cursor.fetchone()
 
