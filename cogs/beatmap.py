@@ -69,7 +69,7 @@ class Mappool(commands.Cog):
     @commands.command(name='stage')
     @commands.has_permissions(administrator=True)
     async def stages(self, ctx, action, stage=None, max_nm=None, max_hd=None, max_hr=None, max_dt=None,
-                     max_fm=None, max_tb=None, pool_override=None):
+                     max_fm=None, max_tb=None, best_of=None, pool_override=None):
         """
         Add or remove a stage, or show stages.
 
@@ -81,13 +81,14 @@ class Mappool(commands.Cog):
         max_dt: Maximum DT map count
         max_fm: Maximum FM map count
         max_tb: Maximum TB map count
+        best_of: Best of number
         pool_override: Use different stages mappool
         """
         if action.lower() == "add":
-            if stage is None or max_nm is None or max_hd is None or max_hr is None or max_dt is None or max_fm is None or max_tb is None:
+            if stage is None or max_nm is None or max_hd is None or max_hr is None or max_dt is None or max_fm is None or max_tb is None or best_of is None:
                 await ctx.send('Please specify all parameters.')
                 return
-            if not max_nm.isnumeric() or not max_hd.isnumeric() or not max_hr.isnumeric() or not max_dt.isnumeric() or not max_fm.isnumeric() or not max_tb.isnumeric():
+            if not max_nm.isnumeric() or not max_hd.isnumeric() or not max_hr.isnumeric() or not max_dt.isnumeric() or not max_fm.isnumeric() or not max_tb.isnumeric() or not best_of.isnumeric():
                 await ctx.send('Please specify maximum values numerical.')
                 return
 
@@ -112,10 +113,11 @@ class Mappool(commands.Cog):
                 max_dt = data[5]
                 max_fm = data[6]
                 max_tb = data[7]
+                best_of = data[8]
             else:
                 pool_override = stage
 
-            db.insert("stages", stage, pool_override, max_nm, max_hd, max_hr, max_dt, max_fm, max_tb, False)
+            db.insert("stages", stage, pool_override, max_nm, max_hd, max_hr, max_dt, max_fm, max_tb, best_of, False)
             await ctx.send('Successfully added the stage {}.'.format(stage))
             return
 
@@ -142,9 +144,9 @@ class Mappool(commands.Cog):
             desc_text = ""
 
             for val in data:
-                desc_text += "**" + val[0] + "** (" + val[1] + ")"
+                desc_text += "**" + val[0] + "** (" + val[1] + ") BO: `{}`".format(val[8])
                 desc_text += " → "
-                desc_text += "NM: `{}`  HD: `{}` - HR: `{}` - DT: `{}` - FM: `{}` - TB: `{}`"\
+                desc_text += "NM: `{}` HD: `{}` HR: `{}` DT: `{}` FM: `{}` TB: `{}`"\
                     .format(val[2], val[3], val[4], val[5], val[6], val[7])
                 desc_text += "\n\n"
 
