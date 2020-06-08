@@ -225,13 +225,13 @@ class Matches(commands.Cog):
                 await ctx.send('Please specify lobby name correctly.')
                 return
 
-            if lobby_data[3] is not None:
-                if lobby_data[3] == ctx.message.author.id:
+            if lobby_data[2] is not None:
+                if lobby_data[2] == ctx.message.author.id:
                     await ctx.send("You have already joined this lobby.")
                     return
                 else:
                     await ctx.send("Already {} joined this lobby.".format(discord.Client.get_user(
-                        self.bot, int(lobby_data[3])).name))
+                        self.bot, int(lobby_data[2])).name))
                     return
             else:
                 db.update("lobbies", where="id="+lobby_name, referee=ctx.message.author.id)
@@ -246,7 +246,7 @@ class Matches(commands.Cog):
                 await ctx.send('Please specify lobby name correctly.')
                 return
 
-            if lobby_data[3] != str(ctx.message.author.id):
+            if lobby_data[2] != str(ctx.message.author.id):
                 await ctx.send('You have not joined this lobby.')
                 return
             else:
