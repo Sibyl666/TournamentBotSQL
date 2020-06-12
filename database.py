@@ -106,7 +106,7 @@ class Database:
                     ustring += key + " = ?"
                     args.append(value)
                     if i < argv.__len__():
-                        ustring += " AND "
+                        ustring += ", "
                     i += 1
             args.append(wargv)
             self.cursor.execute(f'UPDATE {table} SET {ustring} WHERE {wstring}', args)
