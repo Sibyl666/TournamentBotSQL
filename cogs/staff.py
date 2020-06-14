@@ -80,11 +80,10 @@ class Staff(commands.Cog):
                 if arg.lower() == "hakem" or arg.lower() == "host":
                     perms.append(arg.lower())
                 else:
-                    print(arg)
                     await ctx.send('Please specify permissions correctly.')
                     return
 
-            db.insert("staff", staff_discord.id, osu_id, json.dumps(perms))
+            db.insert("staff", staff_discord.id, osu_id, json.dumps(perms), args[1])
             await ctx.send('Successfully added {0} as staff!'.format(staff_discord.name))
             return
         elif action == "remove":
