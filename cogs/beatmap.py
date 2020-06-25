@@ -265,7 +265,7 @@ class Mappool(commands.Cog):
             embed = discord.Embed(title=title_text, description=desc_text,
                                   color=discord.Color.from_rgb(*Database.get_config()["accent_color"]), url=bmap_url)
             embed.set_thumbnail(
-                url="https://cdn.discordapp.com/attachments/520370557531979786/693448457154723881/botavatar.png")
+                url="https://112ninturnuvalari.xyz/embed.png")
             embed.set_author(name=author_name)
             embed.set_image(url=bmap_cover)
             embed.set_footer(text=footer_text)
