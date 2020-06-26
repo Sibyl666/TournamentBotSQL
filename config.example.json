@@ -3,6 +3,9 @@
   "cogs_dir": "cogs",
   "bot_token": "",
 
+  "guild_id": 0,
+  "player_role_id": 0,
+
   "database_file": "yankee.db",
 
   "website": "http://localhost",

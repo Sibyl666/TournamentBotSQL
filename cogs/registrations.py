@@ -1,5 +1,7 @@
+import discord
 from discord.ext import commands
 from database import Database
+import asyncio
 
 import uuid
 import json
@@ -11,6 +13,29 @@ class Registrations(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+
+    async def player_role_task(self):
+        await self.bot.wait_until_ready()
+        db = Database()
+        guild = self.bot.get_guild(db.get_config()["guild_id"])
+        player_role = discord.utils.get(guild.roles, id=db.get_config()["player_role_id"])
+        while self.bot.is_closed:
+            db.select("users", eliminated=False)
+            active_players = db.fetchall()
+            for member in guild.members:
+                if player_role in member.roles:
+                    if not any(p[0] == member.id for p in active_players):
+                        print(f"Removing role from: {member}")
+                        await member.remove_roles(player_role)
+                else:
+                    if any(p[0] == member.id for p in active_players):
+                        print(f"Giving role to: {member}")
+                        await member.add_roles(player_role)
+            await asyncio.sleep(30)
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.bot.loop.create_task(self.player_role_task())
 
     @staticmethod
     def leave_from_all_lobbies(userid):
