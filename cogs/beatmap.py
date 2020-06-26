@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from database import Database
 
+from distutils import util
 import cloudscraper
 import json
 import requests
@@ -69,7 +70,7 @@ class Mappool(commands.Cog):
     @commands.command(name='stage')
     @commands.has_permissions(administrator=True)
     async def stages(self, ctx, action, stage=None, max_nm=None, max_hd=None, max_hr=None, max_dt=None,
-                     max_fm=None, max_tb=None, best_of=None, pool_override=None):
+                     max_fm=None, max_tb=None, best_of=None, eliminate_when_lose=None , pool_override=None):
         """
         Add or remove a stage, or show stages.
 
@@ -82,14 +83,21 @@ class Mappool(commands.Cog):
         max_fm: Maximum FM map count
         max_tb: Maximum TB map count
         best_of: Best of number
+        eliminate_when_lose: true or false, eliminates player when lost the match.
         pool_override: Use different stages mappool
         """
         if action.lower() == "add":
-            if stage is None or max_nm is None or max_hd is None or max_hr is None or max_dt is None or max_fm is None or max_tb is None or best_of is None:
+            if stage is None or max_nm is None or max_hd is None or max_hr is None or max_dt is None or max_fm is None or max_tb is None or best_of is None or eliminate_when_lose is None:
                 await ctx.send('Please specify all parameters.')
                 return
             if not max_nm.isnumeric() or not max_hd.isnumeric() or not max_hr.isnumeric() or not max_dt.isnumeric() or not max_fm.isnumeric() or not max_tb.isnumeric() or not best_of.isnumeric():
                 await ctx.send('Please specify maximum values numerical.')
+                return
+
+            try:
+                eliminate_when_lose = bool(util.strtobool(eliminate_when_lose))
+            except:
+                await ctx.send('Please specify eliminate when lose correctly (true/false).')
                 return
 
             stage = stage.upper()
@@ -117,7 +125,7 @@ class Mappool(commands.Cog):
             else:
                 pool_override = stage
 
-            db.insert("stages", stage, pool_override, max_nm, max_hd, max_hr, max_dt, max_fm, max_tb, best_of, False)
+            db.insert("stages", stage, pool_override, max_nm, max_hd, max_hr, max_dt, max_fm, max_tb, best_of, False, eliminate_when_lose)
             await ctx.send('Successfully added the stage {}.'.format(stage))
             return
 
@@ -144,7 +152,7 @@ class Mappool(commands.Cog):
             desc_text = ""
 
             for val in data:
-                desc_text += "**" + val[0] + "** (" + val[1] + ") BO: `{}`".format(val[8])
+                desc_text += "**" + val[0] + "** (" + val[1] + ") BO: `{}` E: `{}`".format(val[8], bool(val[10]))
                 desc_text += " → "
                 desc_text += "NM: `{}` HD: `{}` HR: `{}` DT: `{}` FM: `{}` TB: `{}`"\
                     .format(val[2], val[3], val[4], val[5], val[6], val[7])
