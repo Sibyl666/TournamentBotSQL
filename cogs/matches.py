@@ -5,6 +5,7 @@ from datetime import datetime
 import json
 import asyncio
 import math
+from pytz import timezone
 
 from database import Database
 
@@ -25,7 +26,8 @@ class Matches(commands.Cog):
                 for lobby in [l for l in lobbies if l[6] is None]:
                     lobbydate = datetime.strptime(lobby[4], "%d/%m/%Y - %H:%M, %a")
                     players = json.loads(lobby[1])
-                    if math.ceil((lobbydate - datetime.now()).total_seconds()/60) == 15:
+                    now = datetime.now(timezone("Europe/Istanbul")).replace(tzinfo=None)
+                    if math.ceil((lobbydate - now).total_seconds()/60) == 15:
                         print(f"Announcing lobby {lobby[0]}.")
                         ref = "<@{}>".format(lobby[2]) if lobby[2] is not None else "-"
                         player_mention_array = []
