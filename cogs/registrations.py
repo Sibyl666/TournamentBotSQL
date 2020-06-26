@@ -22,15 +22,18 @@ class Registrations(commands.Cog):
         while self.bot.is_closed:
             db.select("users", eliminated=False)
             active_players = db.fetchall()
-            for member in guild.members:
-                if player_role in member.roles:
-                    if not any(p[0] == member.id for p in active_players):
-                        print(f"Removing role from: {member}")
-                        await member.remove_roles(player_role)
-                else:
-                    if any(p[0] == member.id for p in active_players):
-                        print(f"Giving role to: {member}")
-                        await member.add_roles(player_role)
+            try:
+                for member in guild.members:
+                    if player_role in member.roles:
+                        if not any(p[0] == member.id for p in active_players):
+                            print(f"Removing role from: {member}")
+                            await member.remove_roles(player_role)
+                    else:
+                        if any(p[0] == member.id for p in active_players):
+                            print(f"Giving role to: {member}")
+                            await member.add_roles(player_role)
+            except Exception as e:
+                print(e)
             await asyncio.sleep(30)
 
     @commands.Cog.listener()
