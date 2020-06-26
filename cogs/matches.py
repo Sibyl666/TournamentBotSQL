@@ -3,6 +3,8 @@ from discord.ext import commands
 
 from datetime import datetime
 import json
+import asyncio
+import math
 
 from database import Database
 
@@ -11,6 +13,34 @@ class Matches(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+
+    async def lobby_announcement_task(self):
+        await self.bot.wait_until_ready()
+        db = Database()
+        channel = self.bot.get_channel(db.get_config()["announcement_channel"])
+        while self.bot.is_closed:
+            db.select("lobbies")
+            lobbies = db.fetchall()
+            try:
+                for lobby in [l for l in lobbies if l[6] is None]:
+                    lobbydate = datetime.strptime(lobby[4], "%d/%m/%Y - %H:%M, %a")
+                    players = json.loads(lobby[1])
+                    if math.ceil((lobbydate - datetime.now()).total_seconds()/60) == 15:
+                        print(f"Announcing lobby {lobby[0]}.")
+                        ref = "<@{}>".format(lobby[2]) if lobby[2] is not None else "-"
+                        player_mention_array = []
+                        for player in players:
+                            player_mention_array.append("<@{}>".format(player["discord_id"]))
+                        await channel.send('**{}** - {} lobisi için son 15 dakika kaldı! Hakem: {}'.format(
+                            lobby[0], ", ".join(player_mention_array), ref
+                        ))
+            except Exception as e:
+                print(e)
+            await asyncio.sleep(60)
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.bot.loop.create_task(self.lobby_announcement_task())
 
     @commands.command(name='lobby')
     @commands.has_permissions(administrator=True)
