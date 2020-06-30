@@ -10,6 +10,10 @@ from bs4 import BeautifulSoup
 from oppai import ezpp_set_autocalc, ezpp_new, ezpp_data_dup, ezpp_set_mods, MODS_DT, MODS_HR, ezpp_stars, \
     ezpp_ar, ezpp_hp, ezpp_od, ezpp_cs
 
+def in_channel(channel_id):
+    def predicate(ctx):
+        return ctx.message.channel.id == channel_id
+    return commands.check(predicate)
 
 class Mappool(commands.Cog):
 
@@ -313,8 +317,10 @@ class Mappool(commands.Cog):
         else:
             await ctx.send('Please specify your action! (add,remove)')
 
+
     @commands.command(name='poolshow')
     @commands.has_role("Mappool")
+    @in_channel(723997874873958451)
     async def mappool_show(self, ctx, which_pool, mod=None):
         """
         Shows the selected pool.
@@ -344,7 +350,7 @@ class Mappool(commands.Cog):
             mod = mod.upper()
             if mod not in mods:
                 await ctx.send(f"Mods can only be one of from {mods}.\n"
-                               f"You wanted to select {mod} mod pool, but it does not exist.")
+                            f"You wanted to select {mod} mod pool, but it does not exist.")
                 return
 
         if show_all:
