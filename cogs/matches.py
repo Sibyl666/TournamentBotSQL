@@ -27,7 +27,7 @@ class Matches(commands.Cog):
                     lobbydate = datetime.strptime(lobby[4], "%d/%m/%Y - %H:%M, %a")
                     players = json.loads(lobby[1])
                     now = datetime.now(timezone("Europe/Istanbul")).replace(tzinfo=None)
-                    if math.ceil((lobbydate - now).total_seconds()/60) == 15:
+                    if math.ceil((lobbydate - now).total_seconds() / 60) == 15:
                         print(f"Announcing lobby {lobby[0]}.")
                         ref = "<@{}>".format(lobby[2]) if lobby[2] is not None else "-"
                         player_mention_array = []
@@ -198,7 +198,7 @@ class Matches(commands.Cog):
             db = Database()
 
             if db.count("lobbies", id=lobby_id) != 0:
-                db.update("lobbies", where="id="+lobby_id, date=date_string)
+                db.update("lobbies", where="id=" + lobby_id, date=date_string)
                 await ctx.send("Successfully updated lobby {} to {}.".format(lobby_id, date_string))
                 return
             else:
@@ -266,7 +266,7 @@ class Matches(commands.Cog):
                         self.bot, int(lobby_data[2])).name))
                     return
             else:
-                db.update("lobbies", where="id="+lobby_name, referee=ctx.message.author.id)
+                db.update("lobbies", where="id=" + lobby_name, referee=ctx.message.author.id)
                 await ctx.send("{} successfully joined the lobby {}.".format(ctx.message.author.name, lobby_name))
                 return
         elif action == "leave":
@@ -282,12 +282,75 @@ class Matches(commands.Cog):
                 await ctx.send('You have not joined this lobby.')
                 return
             else:
-                db.update("lobbies", where="id="+lobby_name, referee=None)
+                db.update("lobbies", where="id=" + lobby_name, referee=None)
                 await ctx.send('You have successfully left the lobby {}.'.format(lobby_name))
                 return
         else:
             await ctx.send('Please specify an action!')
             return
+
+    @commands.command("eliminatequal")
+    @commands.has_permissions(administrator=True)
+    async def eliminate_qual_stage(self, ctx, stage=None, top=None):
+        """
+        Eliminates players for qualifier's average rankings.
+
+        stage: qualifier stage.
+        top: keep top x players to continue tournament.
+        Please be careful for writing parameters correctly.
+        """
+
+        if stage is None or top is None:
+            await ctx.send("Please specify all parameters.")
+            return
+
+        if not top.isnumeric():
+            await ctx.send("Please specify top players as number.")
+            return
+
+        top = int(top)
+
+        db = Database()
+        db.select("stages", stage=stage, bestof=0)
+        stage_details = db.fetchone()
+        if not stage_details:
+            await ctx.send("Please specify stage correctly.")
+            return
+
+        stage_scores = {}
+        map_ranks = {}
+        db.select("beatmaps", mappool=stage_details[1])
+        for bmap in db.fetchall():
+            stage_scores[str(bmap[0])] = {}
+            map_ranks[str(bmap[0])] = []
+
+        db.likeselect("scores", lobby_id=stage + "_%")
+        lobbies = db.fetchall()
+        for lobby in lobbies:
+            lobby_scores = json.loads(lobby[2])
+            for player in lobby_scores.keys():
+                for bmap in lobby_scores[player].keys():
+                    stage_scores[bmap][player] = lobby_scores[player][bmap]
+
+        ranking_sum = {}
+        for bmap in map_ranks.keys():
+            for player in stage_scores[bmap].keys():
+                map_ranks[bmap].append(player)
+            map_ranks[bmap].sort(key=lambda x: stage_scores[bmap][x], reverse=True)
+
+        for bmap in map_ranks.keys():
+            for player in map_ranks[bmap]:
+                if player not in ranking_sum:
+                    ranking_sum[player] = 0
+                ranking_sum[player] += map_ranks[bmap].index(player)
+
+        ranking = list(ranking_sum.keys())
+        ranking.sort(key=lambda x: ranking_sum[x])
+
+        for player in ranking[top:]:
+            db.update("users", where="osu_id="+player, eliminated=True)
+
+        await ctx.send("Elimination successful.")
 
 
 def setup(bot):

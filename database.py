@@ -67,6 +67,22 @@ class Database:
                 i += 1
             self.cursor.execute(f'SELECT * FROM {table} WHERE {wstring}', args)
 
+    def likeselect(self, table, **where):
+
+        if where.__len__() == 0:
+            self.cursor.execute(f'SELECT * FROM {table}')
+        else:
+            i = 1
+            wstring = ""
+            args = []
+            for key, value in where.items():
+                wstring += key + " LIKE ?"
+                args.append(value)
+                if i < where.__len__():
+                    wstring += " AND "
+                i += 1
+            self.cursor.execute(f'SELECT * FROM {table} WHERE {wstring}', args)
+
     def delete(self, table, **where):
 
         if where.__len__() == 0:
