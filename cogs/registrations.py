@@ -17,9 +17,9 @@ class Registrations(commands.Cog):
     async def player_role_task(self):
         await self.bot.wait_until_ready()
         db = Database()
-        guild = self.bot.get_guild(db.get_config()["guild_id"])
-        player_role = discord.utils.get(guild.roles, id=db.get_config()["player_role_id"])
         while self.bot.is_closed:
+            guild = self.bot.get_guild(db.get_config()["guild_id"])
+            player_role = discord.utils.get(guild.roles, id=db.get_config()["player_role_id"])
             db.select("users", eliminated=False)
             active_players = db.fetchall()
             try:
