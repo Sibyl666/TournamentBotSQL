@@ -96,6 +96,40 @@ class Registrations(commands.Cog):
         await ctx.send("Kaydınızı tamamlamak için lütfen DM'nize gelen linke tıklayın.")
 
     @commands.has_permissions(administrator=True)
+    @commands.command(name='lobbykick')
+    async def lobby_kick(self, ctx, user):
+        """
+        Oyuncuyu qualifier lobilerinden çıkar.
+
+        user: Kullanıcının osu adı veya discorddan etiketlenmiş hali.
+        """
+        if user.startswith("<@!"):
+            player = discord.Client.get_user(self.bot,
+                                             int(user.replace("<", "").replace("!", "")
+                                                 .replace(">", "").replace("@", "")))
+            db = Database()
+            db.select("users", discord_id=player.id)
+            player_db = db.fetchone()
+            if player_db:
+                self.leave_from_all_lobbies(player_db[6])
+                await ctx.send('Successfully removed {0} from all lobbies!'.format(player.name))
+                return
+            else:
+                await ctx.send('{0} is not in tourney!'.format(player.name))
+                return
+        else:
+            db = Database()
+            db.select("users", osu_username=user)
+            player_db = db.fetchone()
+            if not player_db:
+                await ctx.send('{0} is not in tourney!'.format(user))
+                return
+            else:
+                self.leave_from_all_lobbies(player_db[6])
+                await ctx.send('Successfully removed {0} from all lobbies!'.format(user))
+                return
+
+    @commands.has_permissions(administrator=True)
     @commands.command(name='kickuser')
     async def kick_user(self, ctx, user):
         """
