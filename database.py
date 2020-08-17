@@ -163,10 +163,10 @@ class Database:
         return self.cursor.fetchone()[0]
 
     def get_next_id(self, table, group):
-        self.cursor.execute(f'SELECT id FROM {table} WHERE id LIKE ? ORDER BY id DESC', (group+"_%",))
-        data = self.fetchone()
+        self.cursor.execute(f'SELECT id FROM {table} WHERE id LIKE ? ORDER BY LENGTH(id) , id', (group+"_%",))
+        data = self.fetchall()
         if data:
-            return int(data[0].split("_")[1]) + 1
+            return int(data[-1][0].split("_")[1]) + 1
         else:
             return 1
 
