@@ -63,37 +63,40 @@ class Registrations(commands.Cog):
         """
         Turnuvaya katılmak için istek oluştur.
         """
-        db = Database()
-        db.select(table="users", discord_id=ctx.author.id)
-        if db.fetchone():
-            await ctx.send("Turnuvaya zaten kayıtlısın.")
-            return
 
-        db.select(table="register_requests", discord_id=ctx.author.id)
-        data = db.fetchone()
+        return "Turnuvaya Kayıtlar 30 Ağustos'da kapandı."
 
-        if data:
-            if datetime.strptime(data[2], "%Y-%m-%d %H:%M:%S.%f") < (datetime.now() - timedelta(days=1)):
-                db.delete(table="register_requests", discord_id=ctx.author.id)
-            else:
-                await ctx.send(
-                    "Bir önceki katılma isteğinizin süresi dolmadı. Lütfen DM'deki geçerli linke tıklayınız.")
-                return
+        # db = Database()
+        # db.select(table="users", discord_id=ctx.author.id)
+        # if db.fetchone():
+        #     await ctx.send("Turnuvaya zaten kayıtlısın.")
+        #     return
 
-        key = uuid.uuid4().hex[:32]
-        db.insert("register_requests", ctx.author.id, key, datetime.now())
+        # db.select(table="register_requests", discord_id=ctx.author.id)
+        # data = db.fetchone()
 
-        cfg = Database.get_config()
+        # if data:
+        #     if datetime.strptime(data[2], "%Y-%m-%d %H:%M:%S.%f") < (datetime.now() - timedelta(days=1)):
+        #         db.delete(table="register_requests", discord_id=ctx.author.id)
+        #     else:
+        #         await ctx.send(
+        #             "Bir önceki katılma isteğinizin süresi dolmadı. Lütfen DM'deki geçerli linke tıklayınız.")
+        #         return
 
-        try:
-            await ctx.author.send(
-                "Kaydınızı tamamlamak için " + cfg[
-                    "website"] + "/completeRegistration?key=" + key + " adresinden osu! hesabınızı tanımlayın! Bu link yalnızca 24 saatliğine geçerlidir.")
-        except:
-            db.delete(table="register_requests", discord_id=ctx.author.id)
-            await ctx.send("DM göndermede hata oluştu. Lütfen gizlilik ayarlarınızdan DM izinlerinizi kontrol edin.")
-            return
-        await ctx.send("Kaydınızı tamamlamak için lütfen DM'nize gelen linke tıklayın.")
+        # key = uuid.uuid4().hex[:32]
+        # db.insert("register_requests", ctx.author.id, key, datetime.now())
+
+        # cfg = Database.get_config()
+
+        # try:
+        #     await ctx.author.send(
+        #         "Kaydınızı tamamlamak için " + cfg[
+        #             "website"] + "/completeRegistration?key=" + key + " adresinden osu! hesabınızı tanımlayın! Bu link yalnızca 24 saatliğine geçerlidir.")
+        # except:
+        #     db.delete(table="register_requests", discord_id=ctx.author.id)
+        #     await ctx.send("DM göndermede hata oluştu. Lütfen gizlilik ayarlarınızdan DM izinlerinizi kontrol edin.")
+        #     return
+        # await ctx.send("Kaydınızı tamamlamak için lütfen DM'nize gelen linke tıklayın.")
 
     @commands.has_permissions(administrator=True)
     @commands.command(name='lobbykick')
