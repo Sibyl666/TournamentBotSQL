@@ -321,7 +321,7 @@ class Mappool(commands.Cog):
 
     @commands.command(name='poolshow')
     @commands.has_role("Mappool")
-    @in_channel(723997874873958451)
+    @in_channel(536209197642153994)
     async def mappool_show(self, ctx, which_pool, mod=None):
         """
         Shows the selected pool.
