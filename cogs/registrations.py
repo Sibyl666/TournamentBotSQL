@@ -64,7 +64,7 @@ class Registrations(commands.Cog):
         Turnuvaya katılmak için istek oluştur.
         """
 
-        return "Turnuvaya Kayıtlar 30 Ağustos'da kapandı."
+        await ctx.send("Turnuvaya Kayıtlar 30 Ağustos'da kapandı.")
 
         # db = Database()
         # db.select(table="users", discord_id=ctx.author.id)
