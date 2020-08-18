@@ -173,15 +173,18 @@ class Registrations(commands.Cog):
         """
         Turnuvadan ayrıl.
         """
-        db = Database()
-        db.select(table="users", discord_id=ctx.author.id)
-        user = db.fetchone()
-        if user:
-            self.leave_from_all_lobbies(user[6])
-            db.delete(table="users", discord_id=ctx.author.id)
-            await ctx.send("Turnuvadan başarıyla çıkış yaptınız.")
-        else:
-            await ctx.send("Turnuvada kayıtlı değilsiniz.")
+
+        await ctx.send("Turnuvadan çıkışlar kapandı.")
+
+        # db = Database()
+        # db.select(table="users", discord_id=ctx.author.id)
+        # user = db.fetchone()
+        # if user:
+        #     self.leave_from_all_lobbies(user[6])
+        #     db.delete(table="users", discord_id=ctx.author.id)
+        #     await ctx.send("Turnuvadan başarıyla çıkış yaptınız.")
+        # else:
+        #     await ctx.send("Turnuvada kayıtlı değilsiniz.")
 
 
 def setup(bot):
