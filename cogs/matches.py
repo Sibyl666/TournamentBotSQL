@@ -197,9 +197,13 @@ class Matches(commands.Cog):
 
             db = Database()
 
-            if db.count("lobbies", id=lobby_id) != 0:
+            db.select("lobbies", id=lobby_id)
+            lobby = db.fetchone()
+            if lobby:
                 db.update("lobbies", where="id=" + lobby_id, date=date_string)
                 await ctx.send("Successfully updated lobby {} to {}.".format(lobby_id, date_string))
+                if lobby[2] is not None:
+                    await ctx.send("Referee <@{}>, the lobby date has been changed. If you cannot ref this lobby, you can leave this lobby.".format(lobby[2]))
                 return
             else:
                 await ctx.send("Please specify lobby name correctly.")
