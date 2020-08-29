@@ -114,6 +114,8 @@ class Mappool(commands.Cog):
                 await ctx.send('Specified stage is already exist.')
                 return
 
+            show_pool = False
+
             if pool_override is not None:
                 pool_override = pool_override.upper()
                 db.select(table="stages", mappool=pool_override)
@@ -128,10 +130,11 @@ class Mappool(commands.Cog):
                 max_fm = data[6]
                 max_tb = data[7]
                 best_of = data[8]
+                show_pool = data[9]
             else:
                 pool_override = stage
 
-            db.insert("stages", stage, pool_override, max_nm, max_hd, max_hr, max_dt, max_fm, max_tb, best_of, False, eliminate_when_lose)
+            db.insert("stages", stage, pool_override, max_nm, max_hd, max_hr, max_dt, max_fm, max_tb, best_of, show_pool, eliminate_when_lose)
             await ctx.send('Successfully added the stage {}.'.format(stage))
             return
 
