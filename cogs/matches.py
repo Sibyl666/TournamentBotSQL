@@ -293,6 +293,30 @@ class Matches(commands.Cog):
             await ctx.send('Please specify an action!')
             return
 
+    @commands.command("kickref")
+    @commands.has_permissions(administrator=True)
+    async def kick_ref_from_match(self, ctx, lobby_name):
+        """
+        Kicks referee from match.
+        lobby_name: Matchs lobby name.
+        """
+        db = Database()
+        lobby_name = lobby_name.upper()
+        db.select("lobbies", id=lobby_name)
+        lobby_data = db.fetchone()
+        if not lobby_data:
+            await ctx.send('Please specify lobby name correctly.')
+            return
+
+        if lobby_data[2] == None:
+            await ctx.send('There is no referee on this lobby.')
+            return
+        else:
+            db.update("lobbies", where="id=" + lobby_name, referee=None)
+            await ctx.send('Successfully kicked {} from the lobby {}.'.format(discord.Client.get_user(
+                        self.bot, int(lobby_data[2])).name,lobby_name))
+            return
+
     @commands.command("eliminatequal")
     @commands.has_permissions(administrator=True)
     async def eliminate_qual_stage(self, ctx, stage=None, top=None):
