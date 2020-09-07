@@ -130,8 +130,11 @@ class Staff(commands.Cog):
 
             for val in data:
                 staff_discord = discord.Client.get_user(self.bot, val[0])
+                staff_dc_text = f"<@!{val[0]}>"
+                if staff_discord:
+                    staff_dc_text = staff_discord.name + "#" + staff_discord.discriminator
                 staff_osu = self.get_osu_user(val[1])
-                desc_text += "**" + staff_discord.name + "#" + staff_discord.discriminator \
+                desc_text += "**" + staff_dc_text \
                              + "** (" + staff_osu["username"] + ")"
                 desc_text += " → "
                 desc_text += "`{}`" \
