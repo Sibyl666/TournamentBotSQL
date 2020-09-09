@@ -34,7 +34,7 @@ class Mappool(commands.Cog):
         bmap_dict = json.loads(json_bmap)
 
         try:
-            osu_file = requests.get(f"https://bloodcat.com/osu/b/{map_id}")
+            osu_file = requests.get(f"https://osu.ppy.sh/osu/{map_id}")
         except:
             raise Exception(f"`{map_id}` bloodcat'te bulunamadı.")
 
